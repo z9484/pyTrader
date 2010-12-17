@@ -21,6 +21,7 @@ class GameState(State):
         self.dt  = 0
         self.map = loadMap("maps/t1.map")
         self.view = self.findView(self.player1.posX, self.player1.posY)
+        self.prevState = pygame.event.get()
 
     def draw(self):
         self.screen.fill(BLACK)
@@ -75,9 +76,38 @@ class GameState(State):
                 self.player_right()
             self.view = self.findView(self.player1.posX, self.player1.posY)
 
+    def letter(self, key):
+        if key == K_a:
+            print "a pressed"
+
+    def findKey(self, key):
+        for event in self.prevState:
+            if event.key == key:
+                return event
+       
 
     def update(self, clock):
-        super(GameState, self).update(clock) 
+        #super(GameState, self).update(clock)
+        self.state = []
+
+        for event in pygame.event.get():
+            if event.type == QUIT: sys.exit(0)    
+            if hasattr(event, 'key'):
+                self.state.append(event)
+
+        for keyevent in self.state:
+            prevState       
+            if prevState.KEYDOWN and keyevent.type == KEYUP:
+
+        """
+        
+
+        for event in pygame.event.get():
+            if event.type == QUIT: sys.exit(0)    
+            if hasattr(event, 'key'):
+                if event.type == KEYDOWN: self.keys.append(event.key)
+                elif event.type == KEYUP: self.keyreleased(event.key)
+        """
 
         self.dt = clock.get_time()
 
@@ -87,6 +117,9 @@ class GameState(State):
             elif key == K_RIGHT: self.move("right")
             elif key == K_UP: self.move("up")
             elif key == K_DOWN: self.move("down")
+            elif key == K_a: self.letter(K_a)
+
+        self.prevState = self.state
         
 
     def findView(self, x,y):
