@@ -5,8 +5,7 @@ import pygame, sys
 from pygame.locals import *
 from console import *
 
-ICOOLTIME = 500
-COOLTIME = 100
+
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -18,8 +17,7 @@ class GameState(State):
         super(GameState, self).__init__(screen, content)
 
         self.player1 = Character()
-        self.cooldown = COOLTIME
-        self.dt  = 0
+
         self.map = loadMap("maps/t2.map")
         self.mapX = len(self.map[0])
         self.mapY = len(self.map)
@@ -50,6 +48,17 @@ class GameState(State):
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+90+20*i))
 
 
+ 
+    def update(self, clock):
+        super(GameState, self).update(clock)
+
+        for key in self.keysDown:
+            self.keyHandler(key)
+
+        for i in xrange(len(self.keys)):
+            if self.check_cool(i):
+                self.keyHandler(self.keys[i][0])
+            
     def player_left(self):
         if self.view[2][1] not in OBSTACLES:
             self.player1.moveLeft()
@@ -65,14 +74,6 @@ class GameState(State):
     def player_down(self):
         if self.view[3][2] not in OBSTACLES:
             self.player1.moveDown()
-        
-    def check_cool(self):
-        if self.cooldown <= 0:
-	        self.cooldown = COOLTIME
-	        return True
-        else:
-	        self.cooldown -= self.dt
-	        return False
 
     def keyreleased(self, key):
         super(GameState, self).keyreleased(key) 
@@ -101,44 +102,7 @@ class GameState(State):
         for event in self.prevState:
             if event.key == key:
                 return event
-       
-    def update(self, clock):
-        #super(GameState, self).update(clock)
-        self.keysDown = []
-        self.keysUp = []
-        self.dt = clock.get_time()
-        
-        for event in pygame.event.get():
-            if event.type == QUIT: sys.exit(0)    
-            if hasattr(event, 'key'):
-                if event.type == KEYDOWN: self.keysDown.append(event.key); self.keys.append([event.key, ICOOLTIME])
-                elif event.type == KEYUP: self.keysUp.append(event.key); self.keyreleased(event.key)
-            
-               
-        for key in self.keysDown:
-            self.keyHandler(key)
-
-        for key in self.keysUp:
-            self.cooldown = COOLTIME
-            
-        for i in xrange(len(self.keys)):
-            if self.check_cool(i):
-                self.keyHandler(self.keys[i][0])
-            
-    def keyreleased(self, key):
-        for i in xrange(len(self.keys)):
-            if self.keys[i][0] == key:
-                self.keys.pop(i)
-                break
-        
-    def check_cool(self, index):
-        if self.keys[index][1] <= 0:
-	        self.keys[index][1] = COOLTIME
-	        return True
-        else:
-	        self.keys[index][1] -= self.dt
-	        return False
-	        
+       	        
     def keyHandler(self, key):
         if key == K_ESCAPE: sys.exit(0)
         elif key == K_LEFT: self.move("left")
@@ -165,8 +129,6 @@ class GameState(State):
         self.history.append(self.buffer)
         self.history.pop(0)
         self.buffer = ""
-        for row in self.history:
-            print row 
 
     def backspace(self):
         self.buffer = self.buffer[:-1]
