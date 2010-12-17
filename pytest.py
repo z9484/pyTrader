@@ -2,8 +2,9 @@ import pygame, sys
 from pygame.locals import *
 
 from character import *
-from states.gamestate import *
+from states.gamestate.gamestate import *
 from states.combatstate import *
+from point import *
 
 FRAMES_PER_SECOND = 30
 

@@ -1,10 +1,5 @@
 import random
 
-class Point(object):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 def generatemap():
     numX = 20
     numY = 50
