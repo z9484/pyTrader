@@ -9,6 +9,7 @@ ICOOLTIME = 500
 COOLTIME = 100
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
 TILESIZE = 32
 OBSTACLES = ["#"]
 
@@ -24,6 +25,7 @@ class GameState(State):
         self.mapY = len(self.map)
         self.view = self.findView(self.player1.posX, self.player1.posY)
         self.buffer = ""
+        self.history = ["","",""]
         self.console = Console()
 
     def draw(self):
@@ -41,7 +43,11 @@ class GameState(State):
         self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery))
         
         text = self.content["font1"].render(self.buffer, True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+50))
+        self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+150))
+
+        for i in xrange(len(self.history)):
+            text = self.content["font1"].render(self.history[i], True, BLUE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+90+20*i))
 
 
     def player_left(self):
@@ -84,7 +90,12 @@ class GameState(State):
         self.view = self.findView(self.player1.posX, self.player1.posY)
 
     def letter(self, key):
-        self.buffer += chr(key)
+
+        #if its a alpha numeric character
+        if key > 31 and key < 128: 
+            self.buffer += chr(key)
+        else:
+            print key
         
     def findKey(self, key):
         for event in self.prevState:
@@ -134,42 +145,6 @@ class GameState(State):
         elif key == K_RIGHT: self.move("right")
         elif key == K_UP: self.move("up")
         elif key == K_DOWN: self.move("down")
-        elif key == K_a: self.letter(key)
-        elif key == K_b: self.letter(key)
-        elif key == K_c: self.letter(key)
-        elif key == K_d: self.letter(key)
-        elif key == K_e: self.letter(key)
-        elif key == K_f: self.letter(key)
-        elif key == K_g: self.letter(key)
-        elif key == K_h: self.letter(key)
-        elif key == K_i: self.letter(key)
-        elif key == K_j: self.letter(key)
-        elif key == K_k: self.letter(key)
-        elif key == K_l: self.letter(key)
-        elif key == K_m: self.letter(key)
-        elif key == K_n: self.letter(key)
-        elif key == K_o: self.letter(key)
-        elif key == K_p: self.letter(key)
-        elif key == K_q: self.letter(key)
-        elif key == K_r: self.letter(key)
-        elif key == K_s: self.letter(key)
-        elif key == K_t: self.letter(key)
-        elif key == K_u: self.letter(key)
-        elif key == K_v: self.letter(key)
-        elif key == K_w: self.letter(key)
-        elif key == K_x: self.letter(key)
-        elif key == K_y: self.letter(key)
-        elif key == K_z: self.letter(key)
-        elif key == K_0: self.letter(key)
-        elif key == K_1: self.letter(key)
-        elif key == K_2: self.letter(key)
-        elif key == K_3: self.letter(key)
-        elif key == K_4: self.letter(key)
-        elif key == K_5: self.letter(key)
-        elif key == K_6: self.letter(key)
-        elif key == K_7: self.letter(key)
-        elif key == K_8: self.letter(key)
-        elif key == K_9: self.letter(key)
         elif key == K_KP0: self.letter(K_0)
         elif key == K_KP1: self.letter(K_1)
         elif key == K_KP2: self.letter(K_2)
@@ -183,11 +158,15 @@ class GameState(State):
         elif key == K_RETURN or key == K_KP_ENTER: self.enter()
         elif key == K_BACKSPACE: self.backspace()
         elif key == K_SPACE: self.letter(key)
+        else: self.letter(key)
 
     def enter(self):
-        self.console.execute(self.buffer)
-        
+        #self.console.execute(self.buffer)
+        self.history.append(self.buffer)
+        self.history.pop(0)
         self.buffer = ""
+        for row in self.history:
+            print row 
 
     def backspace(self):
         self.buffer = self.buffer[:-1]
