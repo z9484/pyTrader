@@ -1,15 +1,8 @@
 import re
 
 class Console(object):
-    def __init__(self):
-        self.balance = 100
-        self.food = 0
-        self.minerals = 0
-        self.equipment = 0
-        self.maxcargo = 25
-
-    def findcargo(self):
-        return self.minerals + self.food + self.equipment
+    #def __init__(self):
+        #pass
 
     def viewBalance(self):
          print "Balance:", str(self.balance).rjust(5)

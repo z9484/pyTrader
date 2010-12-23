@@ -3,7 +3,9 @@ from state import *
 from loadmap import *
 import pygame, sys
 from pygame.locals import *
-from console import *
+#from console import *
+from point import *
+from states.gamestate.outpost import *
 
 
 BLACK = (0,0,0)
@@ -24,7 +26,14 @@ class GameState(State):
         self.view = self.findView(self.player1.posX, self.player1.posY)
         self.buffer = ""
         self.history = ["","",""]
-        self.console = Console()
+        #self.console = Console()
+        """
+        tt = Outpost(Point(24,9), "Mine",
+                 Commodity("Food", 1.05, 2600, 1300, 1),
+                 Commodity("Mineral", 0.9, 7000, 3500, 1),
+                 Commodity("Equipment", 1.15, 3500, 1750, 1)
+                 )
+        """
 
     def draw(self):
         self.screen.fill(BLACK)
@@ -126,6 +135,9 @@ class GameState(State):
 
     def enter(self):
         #self.console.execute(self.buffer)
+        if self.buffer.strip() == "v":
+            self.player1.viewBalance() 
+        
         self.history.append(self.buffer)
         self.history.pop(0)
         self.buffer = ""
@@ -147,5 +159,7 @@ class GameState(State):
                         print y+q,x+r
             view.append(row)  
 
-        return view        
+        return view
+        
+                
 

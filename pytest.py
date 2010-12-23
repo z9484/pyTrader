@@ -4,8 +4,6 @@ from pygame.locals import *
 from character import *
 from states.gamestate.gamestate import *
 from states.combatstate import *
-from point import *
-from states.gamestate.outpost import *
 
 FRAMES_PER_SECOND = 30
 
@@ -32,11 +30,7 @@ class Game(object):
 
         self.gamestate = GameState(self.screen, self.tiles)
         #self.gamestate = CombatState(self.screen, self.tiles)
-        tt = Outpost(Point(24,9), "Mine",
-                 Commodity("Food", 1.05, 2600, 1300, 1),
-                 Commodity("Mineral", 0.9, 7000, 3500, 1),
-                 Commodity("Equipment", 1.15, 3500, 1750, 1)
-                 )
+
 
 
     def update(self):
