@@ -7,11 +7,11 @@ from states.combatstate import *
 
 FRAMES_PER_SECOND = 30
 
-
+   
 class Game(object):
     def __init__(self):
         self.screen = pygame.display.set_mode((640, 480))
-        pygame.display.set_caption("BattleSim")
+        pygame.display.set_caption("pyTrader")
         self.clock = pygame.time.Clock()
 
         ## Load Content ##
@@ -28,7 +28,7 @@ class Game(object):
         self.tiles["#"] = wall
         self.tiles["font1"] = font
 
-        self.gamestate = GameState(self.screen, self.tiles)
+        self.gamestate = [GameState(self.screen, self.tiles)]
         #self.gamestate = CombatState(self.screen, self.tiles)
 
 
@@ -36,10 +36,10 @@ class Game(object):
     def update(self):
         # USER INPUT
         self.clock.tick(FRAMES_PER_SECOND)
-        self.gamestate.update(self.clock)    
+        self.gamestate[0].update(self.clock)    
         
     def draw(self):
-        self.gamestate.draw()
+        self.gamestate[0].draw()
         pygame.display.flip()
 
     def run(self):
@@ -49,5 +49,6 @@ class Game(object):
             self.draw()
 
 
-game = Game()
-game.run()
+if __name__ == "__main__":
+    game = Game()
+    game.run()

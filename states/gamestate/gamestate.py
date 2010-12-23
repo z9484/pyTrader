@@ -7,7 +7,6 @@ from pygame.locals import *
 from point import *
 from states.gamestate.outpost import *
 
-
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -21,11 +20,14 @@ class GameState(State):
         self.player1 = Character()
 
         self.map = loadMap("maps/t2.map")
+        self.outposts = [(2,2), (5,5)]
         self.mapX = len(self.map[0])
         self.mapY = len(self.map)
         self.view = self.findView(self.player1.posX, self.player1.posY)
         self.buffer = ""
         self.history = ["","",""]
+        #print pygame.game.gamestate
+        
         #self.console = Console()
         """
         tt = Outpost(Point(24,9), "Mine",
@@ -136,8 +138,14 @@ class GameState(State):
     def enter(self):
         #self.console.execute(self.buffer)
         if self.buffer.strip() == "v":
-            self.player1.viewBalance() 
-        
+            self.player1.viewBalance()
+        elif self.buffer.strip() == "g":
+            #print "entering {0}, {1} ".format(self.player1.posX, self.player1.posY)
+            if (self.player1.posX, self.player1.posY) in self.outposts:
+                print "yes"
+            else:
+                print "no"
+            
         self.history.append(self.buffer)
         self.history.pop(0)
         self.buffer = ""
