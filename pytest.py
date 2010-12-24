@@ -29,6 +29,7 @@ class Game(object):
         self.tiles["font1"] = font
 
         self.gamestate = [GameState(self.screen, self.tiles)]
+        self.gamestate[0].insert(self)
         #self.gamestate = CombatState(self.screen, self.tiles)
 
 

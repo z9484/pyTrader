@@ -1,3 +1,8 @@
+class Point(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        
 class Commodity(object):
     def __init__(self, name, bpmult, capacity, current, cust):
         self.name = name
@@ -33,50 +38,40 @@ class Outpost(object):
         
     def dailyAdj(self):
         if self.type == "Farm":
-            self.calcfood(0.2)
-            self.calcmineral(-0.05)
-            self.calcequip(-0.1)
+            self.calc(self.food, 0.2)
+            self.calc(self.mineral, -0.05)
+            self.calc(self.equipment, -0.1)
         elif self.type == "Mine":
-            self.calcfood(-0.1)
-            self.calcmineral(0.2)
-            self.calcequip(-0.1)
+            self.calc(self.food, -0.1)
+            self.calc(self.mineral, 0.2)
+            self.calc(self.equipment, -0.1)
         elif self.type == "Factory":
-            self.calcfood(-0.1)
-            self.calcmineral(-0.2)
-            self.calcequip(0.2)
+            self.calc(self.food, -0.1)
+            self.calc(self.mineral, -0.2)
+            self.calc(self.equipment, 0.2)
         elif self.type == "City":
-            self.calcfood(-0.125)
-            self.calcmineral(-0.125)
-            self.calcequip(-0.125)
+            self.calc(self.food, -0.125)
+            self.calc(self.mineral, -0.125)
+            self.calc(self.equipment, -0.125)
             
-    def calcfood(self, multiplier):
-        amt = int(self.food.current + self.food.capacity * multiplier)
+    def calc(self, label, multiplier):
+        amt = int(label.current + label.capacity * multiplier)
         if amt < 0:
-            self.food.current = 0
-        elif amt > self.food.capacity:
-            self.food.current = self.food.capacity
+            label.current = 0
+        elif amt > label.capacity:
+            label.current = label.capacity
         else:
-            self.food.current = amt
-        
-    def calcmineral(self, multiplier):
-        amt = int(self.mineral.current + self.mineral.capacity * multiplier)
-        if amt < 0:
-            self.mineral.current = 0
-        elif amt > self.mineral.capacity:
-            self.mineral.current = self.mineral.capacity
-        else:
-            self.mineral.current = amt
-    
-    def calcequip(self, multiplier):
-        amt = int(self.equipment.current + self.equipment.capacity * multiplier)
-        if amt < 0:
-            self.equipment.current = 0
-        elif amt > self.equipment.capacity:
-            self.equipment.current = self.equipment.capacity
-        else:
-            self.equipment.current = amt
-        
-        
+            label.current = amt
+            
+    # def calc(self, label, multiplier):
+        # exec("amt = int(" + label + ".current + " + label + ".capacity * multiplier)")
+        # if amt < 0:
+            # exec(label + ".current = 0")
+        # elif amt > eval(label + ".capacity"):
+            # exec(label + ".current = " + label + ".capacity")
+        # else:
+            # exec(label + ".current = amt")
+
 if __name__ == "__main__":
     tt = Outpost(Point(24,9), "Mine",
                  Commodity("Food", 1.05, 2600, 1300, 1),

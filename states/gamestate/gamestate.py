@@ -36,7 +36,9 @@ class GameState(State):
                  Commodity("Equipment", 1.15, 3500, 1750, 1)
                  )
         """
-
+    def insert(self, game):
+        self.game = game
+		
     def draw(self):
         self.screen.fill(BLACK)
         for y in xrange(5):
