@@ -5,7 +5,7 @@ class Character(object):
         self.posY = 2
         self.credits = 100
         self.food = 0
-        self.minerals = 0
+        self.mineral = 0
         self.equipment = 0
         self.maxcargo = 25
 
@@ -29,10 +29,10 @@ class Character(object):
     def viewBalance(self):
         print "Balance:", str(self.credits).rjust(5)
         print "Food:", str(self.food).rjust(8)
-        print "Minerals:", str(self.minerals).rjust(4)
+        print "Minerals:", str(self.mineral).rjust(4)
         print "Eqipment:", str(self.equipment).rjust(4)
         print "Cargo:", (str(self.findcargo())+"/"+str(self.maxcargo)).rjust(7)
         
     def findcargo(self):
-        return self.minerals + self.food + self.equipment
+        return self.mineral + self.food + self.equipment
 

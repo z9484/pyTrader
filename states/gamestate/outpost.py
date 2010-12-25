@@ -1,8 +1,3 @@
-class Point(object):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        
 class Commodity(object):
     def __init__(self, name, bpmult, capacity, current, cust):
         self.name = name
