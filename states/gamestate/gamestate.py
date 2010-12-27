@@ -6,6 +6,7 @@ from pygame.locals import *
 #from console import *
 from point import *
 from states.gamestate.outpost import *
+import cPickle as pickle
 
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
@@ -19,10 +20,10 @@ class GameState(State):
     def __init__(self, screen, content):
         super(GameState, self).__init__(screen, content)
 
-        self.player1 = Character()
-
+        
+        self.load()
+        
         self.map = loadMap("maps/t2.map")
-        self.outposts = [(24,9), (5,5)]
         self.mapX = len(self.map[0])
         self.mapY = len(self.map)
         self.view = self.findView(self.player1.posX, self.player1.posY)
@@ -35,11 +36,7 @@ class GameState(State):
         #print pygame.game.gamestate
         
         #self.console = Console()
-        self.outposts = {(24,9): """Outpost(Point(24,9), "Mine",
-                 Commodity("Food", 1.05, 2600, 1300, 1),
-                 Commodity("Mineral", 0.9, 7000, 3500, 1),
-                 Commodity("Equipment", 1.15, 3500, 1750, 1)
-                 ) """}
+        
                  
         self.outpost = None 
                  
@@ -53,7 +50,8 @@ class GameState(State):
                 try:
                     self.screen.blit(self.content[self.view[y][x]], (x*TILESIZE, y*TILESIZE) )
                 except:
-                    print "bad terrain at", y,x
+                    pass
+                    #print "bad terrain at", y,x
 
         self.screen.blit(self.content["@"], (2*TILESIZE, 2*TILESIZE))
 
@@ -86,11 +84,11 @@ class GameState(State):
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-240))
             text = self.content["font1"].render("Type: " + self.outpost.type, True, WHITE)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-225))
-            text = self.content["font1"].render("Food: " + str(self.outpost.food.current) + "/" + str(self.outpost.food.capacity), True, WHITE)  
+            text = self.content["font1"].render("Food: " + str(self.outpost.food.current) + "/" + str(self.outpost.food.capacity) + " at " + str(self.outpost.food.getSellPrice()) + "/" + str(self.outpost.food.getBuyPrice()), True, WHITE)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-210))
-            text = self.content["font1"].render("Minerals: " + str(self.outpost.mineral.current) + "/" + str(self.outpost.mineral.capacity), True, WHITE)  
+            text = self.content["font1"].render("Minerals: " + str(self.outpost.mineral.current) + "/" + str(self.outpost.mineral.capacity) + " at " + str(self.outpost.mineral.getSellPrice()) + "/" + str(self.outpost.mineral.getBuyPrice()), True, WHITE)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-195))
-            text = self.content["font1"].render("Equipment: " + str(self.outpost.equipment.current) + "/" + str(self.outpost.equipment.capacity), True, WHITE)  
+            text = self.content["font1"].render("Equipment: " + str(self.outpost.equipment.current) + "/" + str(self.outpost.equipment.capacity) + " at " + str(self.outpost.equipment.getSellPrice()) + "/" + str(self.outpost.equipment.getBuyPrice()), True, WHITE)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-180))
         
  
@@ -148,7 +146,7 @@ class GameState(State):
                 return event
        	        
     def keyHandler(self, key):
-        if key == K_ESCAPE: sys.exit(0)
+        if key == K_ESCAPE: self.exit()
         elif key == K_LEFT: self.move("left")
         elif key == K_RIGHT: self.move("right")
         elif key == K_UP: self.move("up")
@@ -176,7 +174,7 @@ class GameState(State):
         if self.currentCommand == -1:
             if raw == "g":
                 if (self.player1.posX, self.player1.posY) in self.outposts:
-                    self.outpost = eval(self.outposts[(self.player1.posX, self.player1.posY)])
+                    self.outpost = self.outposts[(self.player1.posX, self.player1.posY)]
                     self.inTown = True
                     self.dispMessage("Welcome to the Outpost")
                     self.currentCommand = 0
@@ -302,9 +300,149 @@ class GameState(State):
 
         return view
         
-                
+    
     def dispMessage(self, msg):
         self.history.append(msg)
         self.history.pop(0)
+
+    def load(self):
+        try:
+            with open("tt.dat", 'r') as file: 
+                storage = pickle.load(file)
+                self.player1 = storage[0]
+                self.outposts = storage[1]
+        except:
+            print "Creating new player"
+            self.player1 = Character()
+            self.outposts = {(24,9): Outpost(Point(24,9), "Mine",
+                 Commodity("Food", 1.05, 2600, 1300, 1),
+                 Commodity("Mineral", 0.9, 7000, 3500, 1),
+                 Commodity("Equipment", 1.15, 3500, 1750, 1)
+                 ),
+                 (45,45): Outpost(Point(45,45), "City",
+                 Commodity("Food", 1.15, 6800, 3400, 1),
+                 Commodity("Mineral", 1.1, 4300, 2150,  1),
+                 Commodity("Equipment", 1.1, 4300, 2150,  1)
+                 ),
+                 (47,28): Outpost(Point(47,28), "City",
+                 Commodity("Food", 1.15, 7400, 3700, 1),
+                 Commodity("Mineral", 1.1, 4600, 2300,  1),
+                 Commodity("Equipment", 1.1, 4600, 2300,  1)
+                 ),
+                 (10,3): Outpost(Point(10,3), "Mine",
+                 Commodity("Food", 1.05, 3300, 1650, 1),
+                 Commodity("Mineral", 0.9, 8800, 4400,  1),
+                 Commodity("Equipment", 1.15, 4400, 2200,  1)
+                 ),
+                 (12,12): Outpost(Point(12,12), "Farm",
+                 Commodity("Food", 0.9, 6400, 3200, 1),
+                 Commodity("Mineral", 1, 1600, 800,  1),
+                 Commodity("Equipment", 1.1, 3200, 1600,  1)
+                 ),
+                 (25,35): Outpost(Point(25,35), "Factory",
+                 Commodity("Food", 1.05, 3300, 1650, 1),
+                 Commodity("Mineral", 1.15, 6600, 3300,  1),
+                 Commodity("Equipment", 0.9, 8800, 4400,  1)
+                 ),
+                 (2,39): Outpost(Point(2,39), "Farm",
+                 Commodity("Food", 0.9, 5000, 2500, 1),
+                 Commodity("Mineral", 1, 1300, 650,  1),
+                 Commodity("Equipment", 1.1, 2500, 1250,  1)
+                 ),
+                 (14,38): Outpost(Point(14,38), "Farm",
+                 Commodity("Food", 0.9, 8800, 4400, 1),
+                 Commodity("Mineral", 1, 2200, 1100,  1),
+                 Commodity("Equipment", 1.1, 4400, 2200,  1)
+                 ),
+                 (37,50): Outpost(Point(37,50), "Factory",
+                 Commodity("Food", 1.05, 3200, 1600, 1),
+                 Commodity("Mineral", 1.15, 6300, 3150,  1),
+                 Commodity("Equipment", 0.9, 8400, 4200,  1)
+                 ),
+                 (42,22): Outpost(Point(42,22), "Mine",
+                 Commodity("Food", 1.05, 3700, 1850, 1),
+                 Commodity("Mineral", 0.9, 9800, 4900,  1),
+                 Commodity("Equipment", 1.15, 4900, 2450,  1)
+                 ),
+                 (7,29): Outpost(Point(7,29), "Farm",
+                 Commodity("Food", 0.9, 9800, 4900, 1),
+                 Commodity("Mineral", 1, 2500, 1250,  1),
+                 Commodity("Equipment", 1.1, 4900, 2450,  1)
+                 ),
+                 (25,2): Outpost(Point(25,2), "Factory",
+                 Commodity("Food", 1.05, 2700, 1350, 1),
+                 Commodity("Mineral", 1.15, 5400, 2750,  1),
+                 Commodity("Equipment", 0.9, 7200, 3600,  1)
+                 ),
+                 (5,22): Outpost(Point(5,22), "Mine",
+                 Commodity("Food", 1.05, 900, 450, 1),
+                 Commodity("Mineral", 0.9, 2400, 1200,  1),
+                 Commodity("Equipment", 1.15, 1200, 600,  1)
+                 ),
+                 (38,50): Outpost(Point(38,50), "Farm",
+                 Commodity("Food", 0.9, 2800, 1400, 1),
+                 Commodity("Mineral", 1, 700, 350,  1),
+                 Commodity("Equipment", 1.1, 1400, 700,  1)
+                 ),
+                 (5,46): Outpost(Point(5,46), "Factory",
+                 Commodity("Food", 1.05, 3500, 1750, 1),
+                 Commodity("Mineral", 1.15, 6900, 3450,  1),
+                 Commodity("Equipment", 0.9, 9200, 4600,  1)
+                 ),
+                 (11,33): Outpost(Point(11,33), "City",
+                 Commodity("Food", 1.15, 2800, 1400, 1),
+                 Commodity("Mineral", 1.1, 1800, 900,  1),
+                 Commodity("Equipment", 1.1, 1800, 900,  1)
+                 ),
+                 (15,7): Outpost(Point(15,7), "Factory",
+                 Commodity("Food", 1.05, 3500, 1750, 1),
+                 Commodity("Mineral", 1.15, 7100, 3550,  1),
+                 Commodity("Equipment", 0.9, 9400, 4700,  1)
+                 ),
+                 (42,35): Outpost(Point(42,35), "Farm",
+                 Commodity("Food", 0.9, 9200, 4600, 1),
+                 Commodity("Mineral", 1, 2300, 1150,  1),
+                 Commodity("Equipment", 1.1, 4600, 2300,  1)
+                 ),
+                 (6,9): Outpost(Point(6,9), "Farm",
+                 Commodity("Food", 0.9, 8200, 4100, 1),
+                 Commodity("Mineral", 1, 2100, 1050,  1),
+                 Commodity("Equipment", 1.1, 4100, 2050,  1)
+                 ),
+                 (23,17): Outpost(Point(23,17), "Farm",
+                 Commodity("Food", 0.9, 10000, 5000, 1),
+                 Commodity("Mineral", 1, 2500, 1250,  1),
+                 Commodity("Equipment", 1.1, 5000, 2500,  1)
+                 ),
+                 (41,41): Outpost(Point(41,41), "Factory",
+                 Commodity("Food", 1.05, 3500, 1750, 1),
+                 Commodity("Mineral", 1.15, 6900, 3450,  1),
+                 Commodity("Equipment", 0.9, 9200, 4600,  1)
+                 ),
+                 (12,23): Outpost(Point(12,23), "Factory",
+                 Commodity("Food", 1.05, 3500, 1750, 1),
+                 Commodity("Mineral", 1.15, 6900, 3450,  1),
+                 Commodity("Equipment", 0.9, 9200, 4600,  1)
+                 ),
+                 (20,13): Outpost(Point(20,13), "Farm",
+                 Commodity("Food", 0.9, 2800, 1400, 1),
+                 Commodity("Mineral", 1, 700, 350,  1),
+                 Commodity("Equipment", 1.1, 1400, 700,  1)
+                 ),
+                 (10,7): Outpost(Point(5,22), "Mine",
+                 Commodity("Food", 1.05, 3800, 1900, 1),
+                 Commodity("Mineral", 0.9, 10000, 1200,  1),
+                 Commodity("Equipment", 1.15, 1200, 600,  1)
+                 (44,43): Outpost(Point(5,22), "Mine",
+                 Commodity("Food", 1.05, 3400, 1700, 1),
+                 Commodity("Mineral", 0.9, 9000, 1200,  1),
+                 Commodity("Equipment", 1.15, 1200, 600,  1)                                  
+                 }
+            
+    def exit(self):
+        storage = [self.player1, self.outposts]
+        with open("tt.dat", 'w') as file: 
+            pickle.dump(storage, file)
+        sys.exit(0)
         
         
