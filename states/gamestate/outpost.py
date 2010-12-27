@@ -21,6 +21,7 @@ class Commodity(object):
     def getSellPrice(self):
         return int(round(self.baseprice * self.bpmult * self.custmult * (2 - (float(self.current) / self.capacity)) * 1.1))
 
+    
 
     
 class Outpost(object):
@@ -57,6 +58,21 @@ class Outpost(object):
             label.current = label.capacity
         else:
             label.current = amt
+
+    def isValid(self, label, amt):
+        exec("commodity = self." + label)
+        if commodity.current + amt <= commodity.capacity or  commodity.current + amt >= 0:
+            return True
+        else:
+            return False
+            
+    def buy(self, label, amt):
+        exec("commodity = self." + label)
+        commodity.current += amt
+        if commodity.current < 0:
+            commodity.current = 0
+        elif commodity.current > commodity.capacity:
+            commodity.current = commodity.capacity
             
     # def calc(self, label, multiplier):
         # exec("amt = int(" + label + ".current + " + label + ".capacity * multiplier)")

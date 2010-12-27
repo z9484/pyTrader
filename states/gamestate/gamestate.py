@@ -22,23 +22,26 @@ class GameState(State):
         self.player1 = Character()
 
         self.map = loadMap("maps/t2.map")
-        self.outposts = [(2,2), (5,5)]
+        self.outposts = [(24,9), (5,5)]
         self.mapX = len(self.map[0])
         self.mapY = len(self.map)
         self.view = self.findView(self.player1.posX, self.player1.posY)
         self.buffer = ""
         self.history = ["","",""]
-        self.currentCommand = 0
+        self.currentCommand = -1
         self.currentCommodity = 0
+        self.inTown = False
         
         #print pygame.game.gamestate
         
         #self.console = Console()
-        self.outpost = Outpost(Point(24,9), "Mine",
+        self.outposts = {(24,9): """Outpost(Point(24,9), "Mine",
                  Commodity("Food", 1.05, 2600, 1300, 1),
                  Commodity("Mineral", 0.9, 7000, 3500, 1),
                  Commodity("Equipment", 1.15, 3500, 1750, 1)
-                 )
+                 ) """}
+                 
+        self.outpost = None 
                  
     def insert(self, game):
         self.game = game
@@ -54,8 +57,7 @@ class GameState(State):
 
         self.screen.blit(self.content["@"], (2*TILESIZE, 2*TILESIZE))
 
-        text = self.content["font1"].render("X:" + str(self.player1.posX) + " Y:" + str(self.player1.posY), True, WHITE)   
-        self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery))
+        
         
         text = self.content["font1"].render(self.buffer, True, WHITE)  
         self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+150))
@@ -64,7 +66,33 @@ class GameState(State):
             text = self.content["font1"].render(self.history[i], True, GRAY)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+90+20*i))
 
+        text = self.content["font1"].render("X:" + str(self.player1.posX) + " Y:" + str(self.player1.posY), True, WHITE)   
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-240))
+        
+        text = self.content["font1"].render("Credits: " + str(self.player1.credits).rjust(8), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-225))
+        text = self.content["font1"].render("Food: " + str(self.player1.food).rjust(13), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-210))
+        text = self.content["font1"].render("Minerals: " + str(self.player1.mineral).rjust(8), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-195))
+        text = self.content["font1"].render("Equipment: " + str(self.player1.equipment).rjust(4), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-180))
+        text = self.content["font1"].render("Cargo: " + (str(self.player1.findcargo())+"/"+str(self.player1.maxcargo)).rjust(10), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-165))
 
+
+        if self.inTown:
+            text = self.content["font1"].render("Outpost: ", True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-240))
+            text = self.content["font1"].render("Type: " + self.outpost.type, True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-225))
+            text = self.content["font1"].render("Food: " + str(self.outpost.food.current) + "/" + str(self.outpost.food.capacity), True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-210))
+            text = self.content["font1"].render("Minerals: " + str(self.outpost.mineral.current) + "/" + str(self.outpost.mineral.capacity), True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-195))
+            text = self.content["font1"].render("Equipment: " + str(self.outpost.equipment.current) + "/" + str(self.outpost.equipment.capacity), True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-180))
+        
  
     def update(self, clock):
         super(GameState, self).update(clock)
@@ -96,16 +124,16 @@ class GameState(State):
         super(GameState, self).keyreleased(key) 
 
     def move(self, direction):
-        #if self.check_cool():
-        if direction == "up":
-            self.player_up()
-        elif direction == "down":
-            self.player_down()
-        elif direction == "left":
-            self.player_left()
-        elif direction == "right":
-            self.player_right()
-        self.view = self.findView(self.player1.posX, self.player1.posY)
+        if not self.inTown:
+            if direction == "up":
+                self.player_up()
+            elif direction == "down":
+                self.player_down()
+            elif direction == "left":
+                self.player_left()
+            elif direction == "right":
+                self.player_right()
+            self.view = self.findView(self.player1.posX, self.player1.posY)
 
     def letter(self, key):
         #if its a alpha numeric character
@@ -145,17 +173,29 @@ class GameState(State):
         self.dispMessage(self.buffer)
         raw = self.buffer.strip()
         
-        if self.currentCommand == 0:
-            if raw == "v":
-                self.player1.viewBalance()
-            elif raw == "g":
+        if self.currentCommand == -1:
+            if raw == "g":
                 if (self.player1.posX, self.player1.posY) in self.outposts:
-                    print "yes"
+                    self.outpost = eval(self.outposts[(self.player1.posX, self.player1.posY)])
+                    self.inTown = True
+                    self.dispMessage("Welcome to the Outpost")
+                    self.currentCommand = 0
                 else:
                     print "no"
-            elif raw == "b":
+                    
+        elif self.currentCommand == 0:
+            if raw == "b":
                 self.currentCommand = 1
                 self.dispMessage("What would you like to buy?")
+            elif raw == "s":
+                self.currentCommand = 3
+                self.dispMessage("What would you like to sell?")
+            elif raw == "q" or raw == "exit":
+                self.dispMessage("Goodbye")
+                self.inTown = False
+                self.outpost = None
+                self.currentCommand = -1
+                
         elif self.currentCommand == 1:
             if raw == "f":
                 self.dispMessage("How much food?")
@@ -175,25 +215,73 @@ class GameState(State):
             else:
                 self.dispMessage("Invalid choice.")
         elif self.currentCommand == 2:
+            if raw == "q" or raw == "exit":
+                self.dispMessage("Goodbye")
+                self.currentCommand = 0
             self.buy(COMMODITY[self.currentCommodity], raw)
+        elif self.currentCommand == 3:
+            if raw == "f":
+                self.dispMessage("How much food?")
+                self.currentCommand = 4
+                self.currentCommodity =  1                  
+            elif raw ==  "m":
+                self.dispMessage("How many minerals?")
+                self.currentCommand = 4
+                self.currentCommodity =  2             
+            elif raw == "e":
+                self.dispMessage("How much equipment?")
+                self.currentCommand = 4
+                self.currentCommodity = 3
+            elif raw == "q" or raw == "exit":
+                self.dispMessage("Goodbye")
+                self.currentCommand = 0
+            else:
+                self.dispMessage("Invalid choice.")
+        elif self.currentCommand == 4:
+            if raw == "q" or raw == "exit":
+                self.dispMessage("Goodbye")
+                self.currentCommand = 0
+            self.sell(COMMODITY[self.currentCommodity], raw)
+            
         self.buffer = ""
 
     def buy(self, commodity, raw):
+        price = eval("self.outpost." + commodity + ".getSellPrice()")
+        try:
+            amt = int(raw)
+            # print amt
+            if (self.player1.credits - (amt * price) < 0) or (self.player1.findcargo() + amt > self.player1.maxcargo):
+                raise BalanceError
+            if not self.outpost.isValid(commodity, -amt):
+                raise Error
+                
+            self.player1.credits -= (amt * price)
+            self.outpost.buy(commodity, -amt)
+            exec("self.player1." + commodity + " += amt")
+            self.dispMessage("Bought " + raw + " " + commodity + "@ " + str(price))
+            self.currentCommand = 1
+            self.dispMessage("What would you like to buy?")
+        except:
+            self.dispMessage("Invalid amount")
+
+    def sell(self, commodity, raw):
         price = eval("self.outpost." + commodity + ".getBuyPrice()")
-        # try:
-        amt = int(raw)
-        # print amt
-        if (self.player1.credits - (amt * price) < 0) or (self.player1.findcargo() + amt > self.player1.maxcargo):
-            raise BalanceError
-        self.player1.credits -= (amt * price)
-        exec("self.player1." + commodity + " += amt")
-        self.dispMessage("Bought " + raw + " " + commodity + "@ " + str(price))
-        self.player1.viewBalance()
-        self.currentCommand = 1
-        self.dispMessage("What would you like to buy?")
-        
-        # except:
-            # self.dispMessage("Invalid amount")
+        try:
+            amt = int(raw)
+            # print amt
+            if amt > eval("self.player1." + commodity):
+                raise BalanceError
+            if not self.outpost.isValid(commodity, amt):
+                raise Error
+                
+            self.player1.credits += (amt * price)
+            self.outpost.buy(commodity, amt)
+            exec("self.player1." + commodity + " -= amt")
+            self.dispMessage("Sold " + raw + " " + commodity + "@ " + str(price))
+            self.currentCommand = 3
+            self.dispMessage("What would you like to Sell?")
+        except:
+            self.dispMessage("Invalid amount")
             
     def backspace(self):
         self.buffer = self.buffer[:-1]
