@@ -249,7 +249,7 @@ class GameState(State):
             if raw == "q" or raw == "exit":
                 self.dispMessage("Goodbye")
                 self.currentCommand = 0
-            if raw == "a":
+            elif raw == "a":
                 commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
                 price = commodity.getSellPrice()
                 amt = self.player1.findmaxBuy(price)
@@ -289,7 +289,7 @@ class GameState(State):
             if raw == "q" or raw == "exit":
                 self.dispMessage("Goodbye")
                 self.currentCommand = 0
-            if raw == "a":
+            elif raw == "a":
                 commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
                 amt = eval("self.player1." + COMMODITY[self.currentCommodity])
                 if commodity.current + amt > commodity.capacity:
