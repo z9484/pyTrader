@@ -1,0 +1,11 @@
+pyTrader
+
+"g" enters a outpost
+escape quits
+
+    outpost options
+        "q" exits a question or the outpost if not in a menu
+        "b" buy a commodity
+        "s" sell a commodity
+        "a" buy or sell all possible for that commodity
+   

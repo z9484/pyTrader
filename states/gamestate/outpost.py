@@ -21,11 +21,13 @@ class Commodity(object):
     def getSellPrice(self):
         return int(round(self.baseprice * self.bpmult * self.custmult * (2 - (float(self.current) / self.capacity)) * 1.1))
 
+    def bleft(self):
+        return self.capacity - self.current
     
-
     
 class Outpost(object):
-    def __init__(self, point, otype, food, mineral, equipment):    
+    def __init__(self, no, point, otype, food, mineral, equipment):
+        self.no = no
         self.coordinates = point
         self.type = otype 
         self.food = food
@@ -73,6 +75,7 @@ class Outpost(object):
             commodity.current = 0
         elif commodity.current > commodity.capacity:
             commodity.current = commodity.capacity
+    
             
     # def calc(self, label, multiplier):
         # exec("amt = int(" + label + ".current + " + label + ".capacity * multiplier)")

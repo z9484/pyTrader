@@ -1,6 +1,6 @@
 TILESIZE = 32
 class Character(object):
-    def __init__(self):
+    def __init__(self, name):
         self.posX = 2
         self.posY = 2
         self.credits = 100
@@ -8,6 +8,7 @@ class Character(object):
         self.mineral = 0
         self.equipment = 0
         self.maxcargo = 25
+        self.name = name
 
 
     def moveLeft(self):
@@ -36,3 +37,12 @@ class Character(object):
     def findcargo(self):
         return self.mineral + self.food + self.equipment
 
+    def cargoleft(self):
+        return self.maxcargo - (self.mineral + self.food + self.equipment)
+        
+    def findmaxBuy(self, price):
+        amt = self.credits / price
+        if amt > self.cargoleft():
+            return self.cargoleft()
+        else:
+            return amt

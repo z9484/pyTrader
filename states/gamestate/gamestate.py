@@ -64,32 +64,52 @@ class GameState(State):
             text = self.content["font1"].render(self.history[i], True, GRAY)  
             self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery+90+20*i))
 
-        text = self.content["font1"].render("X:" + str(self.player1.posX) + " Y:" + str(self.player1.posY), True, WHITE)   
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-240))
+        xoffset = -150
+        yoffset = -135
+        toffset = -15
+        i = 6
         
+        text = self.content["font1"].render("Name: " + self.player1.name.rjust(8), True, WHITE)  
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
+        text = self.content["font1"].render("X:" + str(self.player1.posX) + " Y:" + str(self.player1.posY), True, WHITE)   
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
         text = self.content["font1"].render("Credits: " + str(self.player1.credits).rjust(8), True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-225))
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
         text = self.content["font1"].render("Food: " + str(self.player1.food).rjust(13), True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-210))
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
         text = self.content["font1"].render("Minerals: " + str(self.player1.mineral).rjust(8), True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-195))
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
         text = self.content["font1"].render("Equipment: " + str(self.player1.equipment).rjust(4), True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-180))
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+        i -= 1
         text = self.content["font1"].render("Cargo: " + (str(self.player1.findcargo())+"/"+str(self.player1.maxcargo)).rjust(10), True, WHITE)  
-        self.screen.blit(text, (self.screen.get_rect().centerx-150, self.screen.get_rect().centery-165))
+        self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
 
 
         if self.inTown:
-            text = self.content["font1"].render("Outpost: ", True, WHITE)  
-            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-240))
-            text = self.content["font1"].render("Type: " + self.outpost.type, True, WHITE)  
-            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-225))
+            xoffset = 0
+            yoffset = -135
+            toffset = -15
+            i = 6
+            text = self.content["font1"].render("Outpost: " + str(self.outpost.no), True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+            i -= 1
+            text = self.content["font1"].render("Type: " + self.outpost.type, True, WHITE)
+            self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+            i -= 1
             text = self.content["font1"].render("Food: " + str(self.outpost.food.current) + "/" + str(self.outpost.food.capacity) + " at " + str(self.outpost.food.getSellPrice()) + "/" + str(self.outpost.food.getBuyPrice()), True, WHITE)  
-            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-210))
+            self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+            i -= 1
             text = self.content["font1"].render("Minerals: " + str(self.outpost.mineral.current) + "/" + str(self.outpost.mineral.capacity) + " at " + str(self.outpost.mineral.getSellPrice()) + "/" + str(self.outpost.mineral.getBuyPrice()), True, WHITE)  
-            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-195))
+            self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
+            i -= 1
             text = self.content["font1"].render("Equipment: " + str(self.outpost.equipment.current) + "/" + str(self.outpost.equipment.capacity) + " at " + str(self.outpost.equipment.getSellPrice()) + "/" + str(self.outpost.equipment.getBuyPrice()), True, WHITE)  
-            self.screen.blit(text, (self.screen.get_rect().centerx, self.screen.get_rect().centery-180))
+            self.screen.blit(text, (self.screen.get_rect().centerx + xoffset, self.screen.get_rect().centery + yoffset + toffset * i))
         
  
     def update(self, clock):
@@ -180,7 +200,8 @@ class GameState(State):
                     self.currentCommand = 0
                 else:
                     print "no"
-                    
+            elif raw == "cheat":
+                self.player1.credits += 1000
         elif self.currentCommand == 0:
             if raw == "b":
                 self.currentCommand = 1
@@ -196,15 +217,27 @@ class GameState(State):
                 
         elif self.currentCommand == 1:
             if raw == "f":
-                self.dispMessage("How much food?")
+                price = self.outpost.food.getSellPrice()
+                amt = self.player1.findmaxBuy(price)
+                if amt > self.outpost.food.bleft():
+                    amt = self.outpost.food.bleft()
+                self.dispMessage("How much food? " + str(amt) + " for " + str(amt * price))
                 self.currentCommand = 2
                 self.currentCommodity =  1                  
             elif raw ==  "m":
-                self.dispMessage("How many minerals?")
+                price = self.outpost.mineral.getSellPrice()
+                amt = self.player1.findmaxBuy(price)
+                if amt > self.outpost.mineral.bleft():
+                    amt = self.outpost.mineral.bleft()
+                self.dispMessage("How many minerals? " + str(amt) + " for " + str(amt * price))
                 self.currentCommand = 2
                 self.currentCommodity =  2             
             elif raw == "e":
-                self.dispMessage("How much equipment?")
+                price = self.outpost.equipment.getSellPrice()
+                amt = self.player1.findmaxBuy(price)
+                if amt > self.outpost.equipment.bleft():
+                    amt = self.outpost.equipment.bleft()
+                self.dispMessage("How much equipment? " + str(amt) + " for " + str(amt * price))
                 self.currentCommand = 2
                 self.currentCommodity = 3
             elif raw == "q" or raw == "exit":
@@ -216,18 +249,35 @@ class GameState(State):
             if raw == "q" or raw == "exit":
                 self.dispMessage("Goodbye")
                 self.currentCommand = 0
-            self.buy(COMMODITY[self.currentCommodity], raw)
+            if raw == "a":
+                commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
+                price = commodity.getSellPrice()
+                amt = self.player1.findmaxBuy(price)
+                if amt > commodity.bleft():
+                    amt = commodity.bleft()
+                self.buy(COMMODITY[self.currentCommodity], str(amt))
+            else:    
+                self.buy(COMMODITY[self.currentCommodity], raw)
         elif self.currentCommand == 3:
             if raw == "f":
-                self.dispMessage("How much food?")
+                amt = self.player1.food
+                if self.outpost.food.current + amt > self.outpost.food.capacity:
+                    amt = self.outpost.food.capacity
+                self.dispMessage("How much food? " + str(amt) + " for " + str(amt * self.outpost.food.getBuyPrice()))
                 self.currentCommand = 4
                 self.currentCommodity =  1                  
             elif raw ==  "m":
-                self.dispMessage("How many minerals?")
+                amt = self.player1.mineral
+                if self.outpost.mineral.current + amt > self.outpost.mineral.capacity:
+                    amt = self.outpost.mineral.capacity
+                self.dispMessage("How many minerals? " + " for " + str(amt * self.outpost.mineral.getBuyPrice()))
                 self.currentCommand = 4
                 self.currentCommodity =  2             
             elif raw == "e":
-                self.dispMessage("How much equipment?")
+                amt = self.player1.equipment
+                if self.outpost.equipment.current + amt > self.outpost.equipment.capacity:
+                    amt = self.outpost.equipment.capacity
+                self.dispMessage("How much equipment? " + " for " + str(amt * self.outpost.equipment.getBuyPrice()))
                 self.currentCommand = 4
                 self.currentCommodity = 3
             elif raw == "q" or raw == "exit":
@@ -239,7 +289,14 @@ class GameState(State):
             if raw == "q" or raw == "exit":
                 self.dispMessage("Goodbye")
                 self.currentCommand = 0
-            self.sell(COMMODITY[self.currentCommodity], raw)
+            if raw == "a":
+                commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
+                amt = eval("self.player1." + COMMODITY[self.currentCommodity])
+                if commodity.current + amt > commodity.capacity:
+                    amt = commodity.capacity
+                self.sell(COMMODITY[self.currentCommodity], str(amt))
+            else:
+                self.sell(COMMODITY[self.currentCommodity], raw)
             
         self.buffer = ""
 
@@ -312,7 +369,7 @@ class GameState(State):
                 self.player1 = storage
         except:
             print "Creating new player"
-            self.player1 = Character()
+            self.player1 = Character("Z9484")
             
         try:
             with open("outposts.dat", 'r') as file: 
@@ -320,127 +377,127 @@ class GameState(State):
                 self.outposts = storage
         except:
             print "Loading outpost data"
-            self.outposts = {(24,9): Outpost(Point(24,9), "Mine",
+            self.outposts = {(24,9): Outpost(1, Point(24,9), "Mine",
                  Commodity("Food", 1.05, 2600, 1300, 1),
                  Commodity("Mineral", 0.9, 7000, 3500, 1),
                  Commodity("Equipment", 1.15, 3500, 1750, 1)
                  ),
-                 (45,45): Outpost(Point(45,45), "City",
+                 (45,45): Outpost(2, Point(45,45), "City",
                  Commodity("Food", 1.15, 6800, 3400, 1),
                  Commodity("Mineral", 1.1, 4300, 2150,  1),
                  Commodity("Equipment", 1.1, 4300, 2150,  1)
                  ),
-                 (47,28): Outpost(Point(47,28), "City",
+                 (47,28): Outpost(3, Point(47,28), "City",
                  Commodity("Food", 1.15, 7400, 3700, 1),
                  Commodity("Mineral", 1.1, 4600, 2300,  1),
                  Commodity("Equipment", 1.1, 4600, 2300,  1)
                  ),
-                 (10,3): Outpost(Point(10,3), "Mine",
+                 (10,3): Outpost(4, Point(10,3), "Mine",
                  Commodity("Food", 1.05, 3300, 1650, 1),
                  Commodity("Mineral", 0.9, 8800, 4400,  1),
                  Commodity("Equipment", 1.15, 4400, 2200,  1)
                  ),
-                 (12,12): Outpost(Point(12,12), "Farm",
+                 (12,12): Outpost(5, Point(12,12), "Farm",
                  Commodity("Food", 0.9, 6400, 3200, 1),
                  Commodity("Mineral", 1, 1600, 800,  1),
                  Commodity("Equipment", 1.1, 3200, 1600,  1)
                  ),
-                 (25,35): Outpost(Point(25,35), "Factory",
+                 (25,35): Outpost(6, Point(25,35), "Factory",
                  Commodity("Food", 1.05, 3300, 1650, 1),
                  Commodity("Mineral", 1.15, 6600, 3300,  1),
                  Commodity("Equipment", 0.9, 8800, 4400,  1)
                  ),
-                 (2,39): Outpost(Point(2,39), "Farm",
+                 (2,39): Outpost(7, Point(2,39), "Farm",
                  Commodity("Food", 0.9, 5000, 2500, 1),
                  Commodity("Mineral", 1, 1300, 650,  1),
                  Commodity("Equipment", 1.1, 2500, 1250,  1)
                  ),
-                 (14,38): Outpost(Point(14,38), "Farm",
+                 (14,38): Outpost(8, Point(14,38), "Farm",
                  Commodity("Food", 0.9, 8800, 4400, 1),
                  Commodity("Mineral", 1, 2200, 1100,  1),
                  Commodity("Equipment", 1.1, 4400, 2200,  1)
                  ),
-                 (37,50): Outpost(Point(37,50), "Factory",
+                 (37,50): Outpost(9, Point(37,50), "Factory",
                  Commodity("Food", 1.05, 3200, 1600, 1),
                  Commodity("Mineral", 1.15, 6300, 3150,  1),
                  Commodity("Equipment", 0.9, 8400, 4200,  1)
                  ),
-                 (42,22): Outpost(Point(42,22), "Mine",
+                 (42,22): Outpost(10, Point(42,22), "Mine",
                  Commodity("Food", 1.05, 3700, 1850, 1),
                  Commodity("Mineral", 0.9, 9800, 4900,  1),
                  Commodity("Equipment", 1.15, 4900, 2450,  1)
                  ),
-                 (7,29): Outpost(Point(7,29), "Farm",
+                 (7,29): Outpost(11, Point(7,29), "Farm",
                  Commodity("Food", 0.9, 9800, 4900, 1),
                  Commodity("Mineral", 1, 2500, 1250,  1),
                  Commodity("Equipment", 1.1, 4900, 2450,  1)
                  ),
-                 (25,2): Outpost(Point(25,2), "Factory",
+                 (25,2): Outpost(12, Point(25,2), "Factory",
                  Commodity("Food", 1.05, 2700, 1350, 1),
                  Commodity("Mineral", 1.15, 5400, 2750,  1),
                  Commodity("Equipment", 0.9, 7200, 3600,  1)
                  ),
-                 (5,22): Outpost(Point(5,22), "Mine",
+                 (5,22): Outpost(13, Point(5,22), "Mine",
                  Commodity("Food", 1.05, 900, 450, 1),
                  Commodity("Mineral", 0.9, 2400, 1200,  1),
                  Commodity("Equipment", 1.15, 1200, 600,  1)
                  ),
-                 (38,50): Outpost(Point(38,50), "Farm",
+                 (38,50): Outpost(14, Point(38,50), "Farm",
                  Commodity("Food", 0.9, 2800, 1400, 1),
                  Commodity("Mineral", 1, 700, 350,  1),
                  Commodity("Equipment", 1.1, 1400, 700,  1)
                  ),
-                 (5,46): Outpost(Point(5,46), "Factory",
+                 (5,46): Outpost(15, Point(5,46), "Factory",
                  Commodity("Food", 1.05, 3500, 1750, 1),
                  Commodity("Mineral", 1.15, 6900, 3450,  1),
                  Commodity("Equipment", 0.9, 9200, 4600,  1)
                  ),
-                 (11,33): Outpost(Point(11,33), "City",
+                 (11,33): Outpost(16, Point(11,33), "City",
                  Commodity("Food", 1.15, 2800, 1400, 1),
                  Commodity("Mineral", 1.1, 1800, 900,  1),
                  Commodity("Equipment", 1.1, 1800, 900,  1)
                  ),
-                 (15,7): Outpost(Point(15,7), "Factory",
+                 (15,7): Outpost(17, Point(15,7), "Factory",
                  Commodity("Food", 1.05, 3500, 1750, 1),
                  Commodity("Mineral", 1.15, 7100, 3550,  1),
                  Commodity("Equipment", 0.9, 9400, 4700,  1)
                  ),
-                 (42,35): Outpost(Point(42,35), "Farm",
+                 (42,35): Outpost(18, Point(42,35), "Farm",
                  Commodity("Food", 0.9, 9200, 4600, 1),
                  Commodity("Mineral", 1, 2300, 1150,  1),
                  Commodity("Equipment", 1.1, 4600, 2300,  1)
                  ),
-                 (6,9): Outpost(Point(6,9), "Farm",
+                 (6,9): Outpost(19, Point(6,9), "Farm",
                  Commodity("Food", 0.9, 8200, 4100, 1),
                  Commodity("Mineral", 1, 2100, 1050,  1),
                  Commodity("Equipment", 1.1, 4100, 2050,  1)
                  ),
-                 (23,17): Outpost(Point(23,17), "Farm",
+                 (23,17): Outpost(20, Point(23,17), "Farm",
                  Commodity("Food", 0.9, 10000, 5000, 1),
                  Commodity("Mineral", 1, 2500, 1250,  1),
                  Commodity("Equipment", 1.1, 5000, 2500,  1)
                  ),
-                 (41,41): Outpost(Point(41,41), "Factory",
+                 (41,41): Outpost(21, Point(41,41), "Factory",
                  Commodity("Food", 1.05, 3500, 1750, 1),
                  Commodity("Mineral", 1.15, 6900, 3450,  1),
                  Commodity("Equipment", 0.9, 9200, 4600,  1)
                  ),
-                 (12,23): Outpost(Point(12,23), "Factory",
+                 (12,23): Outpost(22, Point(12,23), "Factory",
                  Commodity("Food", 1.05, 3500, 1750, 1),
                  Commodity("Mineral", 1.15, 6900, 3450,  1),
                  Commodity("Equipment", 0.9, 9200, 4600,  1)
                  ),
-                 (20,13): Outpost(Point(20,13), "Farm",
+                 (20,13): Outpost(23, Point(20,13), "Farm",
                  Commodity("Food", 0.9, 2800, 1400, 1),
                  Commodity("Mineral", 1, 700, 350,  1),
                  Commodity("Equipment", 1.1, 1400, 700,  1)
                  ),
-                 (10,7): Outpost(Point(10,7), "Mine",
+                 (10,7): Outpost(24, Point(10,7), "Mine",
                  Commodity("Food", 1.05, 3800, 1900, 1),
                  Commodity("Mineral", 0.9, 10000, 5000,  1),
                  Commodity("Equipment", 1.15, 5000, 2500,  1)
                  ),
-                 (44,43): Outpost(Point(44,43), "Mine",
+                 (44,43): Outpost(25, Point(44,43), "Mine",
                  Commodity("Food", 1.05, 3400, 1700, 1),
                  Commodity("Mineral", 0.9, 9000, 4500,  1),
                  Commodity("Equipment", 1.15, 4500, 2250,  1)
