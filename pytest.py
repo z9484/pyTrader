@@ -18,6 +18,7 @@ class Game(object):
         player = pygame.image.load('gfx/ninja.png')
         ground = pygame.image.load('gfx/grass.bmp')
         wall = pygame.image.load('gfx/gmtn.bmp')
+        town = pygame.image.load('gfx/town.bmp')
 
         pygame.font.init()
         font = pygame.font.Font(None, 20)
@@ -26,6 +27,7 @@ class Game(object):
         self.tiles["@"] = player
         self.tiles["_"] = ground
         self.tiles["#"] = wall
+        self.tiles["t"] = town
         self.tiles["font1"] = font
 
         self.gamestate = [GameState(self.screen, self.tiles)]

@@ -23,7 +23,7 @@ class GameState(State):
         
         self.load()
         
-        self.map = loadMap("maps/t2.map")
+        self.map = loadMap("maps/t1.map")
         self.mapX = len(self.map[0])
         self.mapY = len(self.map)
         self.view = self.findView(self.player1.posX, self.player1.posY)
@@ -307,13 +307,19 @@ class GameState(State):
 
     def load(self):
         try:
-            with open("tt.dat", 'r') as file: 
+            with open("player.dat", 'r') as file: 
                 storage = pickle.load(file)
-                self.player1 = storage[0]
-                self.outposts = storage[1]
+                self.player1 = storage
         except:
             print "Creating new player"
             self.player1 = Character()
+            
+        try:
+            with open("outposts.dat", 'r') as file: 
+                storage = pickle.load(file)
+                self.outposts = storage
+        except:
+            print "Loading outpost data"
             self.outposts = {(24,9): Outpost(Point(24,9), "Mine",
                  Commodity("Food", 1.05, 2600, 1300, 1),
                  Commodity("Mineral", 0.9, 7000, 3500, 1),
@@ -429,20 +435,28 @@ class GameState(State):
                  Commodity("Mineral", 1, 700, 350,  1),
                  Commodity("Equipment", 1.1, 1400, 700,  1)
                  ),
-                 (10,7): Outpost(Point(5,22), "Mine",
+                 (10,7): Outpost(Point(10,7), "Mine",
                  Commodity("Food", 1.05, 3800, 1900, 1),
-                 Commodity("Mineral", 0.9, 10000, 1200,  1),
-                 Commodity("Equipment", 1.15, 1200, 600,  1)
-                 (44,43): Outpost(Point(5,22), "Mine",
+                 Commodity("Mineral", 0.9, 10000, 5000,  1),
+                 Commodity("Equipment", 1.15, 5000, 2500,  1)
+                 ),
+                 (44,43): Outpost(Point(44,43), "Mine",
                  Commodity("Food", 1.05, 3400, 1700, 1),
-                 Commodity("Mineral", 0.9, 9000, 1200,  1),
-                 Commodity("Equipment", 1.15, 1200, 600,  1)                                  
+                 Commodity("Mineral", 0.9, 9000, 4500,  1),
+                 Commodity("Equipment", 1.15, 4500, 2250,  1)
+                 )				 
                  }
             
     def exit(self):
-        storage = [self.player1, self.outposts]
-        with open("tt.dat", 'w') as file: 
+        storage = self.player1
+        with open("player.dat", 'w') as file: 
             pickle.dump(storage, file)
+            
+        storage = self.outposts
+        with open("outposts.dat", 'w') as file: 
+            pickle.dump(storage, file)
+            
+            
         sys.exit(0)
         
         
