@@ -1,7 +1,9 @@
 pyTrader
 
-"g" enters a outpost
-escape quits
+    pyTrader is released under the GNU General Public License version 3. See COPYING for details.
+
+    "g" enters a outpost
+    escape quits
 
     outpost options
         "q" exits a question or the outpost if not in a menu
