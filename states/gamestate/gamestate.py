@@ -202,6 +202,8 @@ class GameState(State):
                     print "no"
             elif raw == "cheat":
                 self.player1.credits += 1000
+            elif raw == "day":
+                self.daily()
         elif self.currentCommand == 0:
             if raw == "b":
                 self.currentCommand = 1
@@ -314,8 +316,7 @@ class GameState(State):
             self.outpost.buy(commodity, -amt)
             exec("self.player1." + commodity + " += amt")
             self.dispMessage("Bought " + raw + " " + commodity + "@ " + str(price))
-            self.currentCommand = 1
-            self.dispMessage("What would you like to buy?")
+            self.currentCommand = 0
         except:
             self.dispMessage("Invalid amount")
 
@@ -333,8 +334,7 @@ class GameState(State):
             self.outpost.buy(commodity, amt)
             exec("self.player1." + commodity + " -= amt")
             self.dispMessage("Sold " + raw + " " + commodity + "@ " + str(price))
-            self.currentCommand = 3
-            self.dispMessage("What would you like to Sell?")
+            self.currentCommand = 0
         except:
             self.dispMessage("Invalid amount")
             
@@ -504,6 +504,12 @@ class GameState(State):
                  )				 
                  }
             
+    def daily(self):
+        for key in self.outposts:
+            self.outposts[key].dailyAdj()
+        self.dispMessage("A new day has dawned")
+        
+        
     def exit(self):
         storage = self.player1
         with open("player.dat", 'w') as file: 
