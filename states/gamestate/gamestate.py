@@ -155,11 +155,52 @@ class GameState(State):
 
     def letter(self, key):
         #if its a alpha numeric character
-        if key > 31 and key < 128 and len(self.buffer) < MAXTEXT:
-            self.buffer += chr(key)
+        shift = False
+        for i in xrange(len(self.keys)):
+            if self.keys[i][0] == K_LSHIFT or self.keys[i][0] == K_RSHIFT or self.keys[i][0] == K_CAPSLOCK:
+                shift = True
+                break
+                    
+        if (key > 31 and key < 47) or (key > 57 and key < 128) and len(self.buffer) < MAXTEXT:
+            if shift:        
+                self.buffer += chr(key).upper()
+            else:
+                self.buffer += chr(key)
+       
+        elif key > 46 and key < 58:
+            if not shift:
+                self.buffer += chr(key)
+            else:
+                if key == K_1:
+                    character = chr(K_EXCLAIM) 
+                elif key == K_2:
+                    character = chr(K_AT)
+                elif key == K_3:
+                    character = chr(K_HASH)
+                elif key == K_4:
+                    character = chr(K_DOLLAR)
+                elif key == K_5:
+                    character = chr(37)
+                elif key == K_6:
+                    character = chr(K_CARET)
+                elif key == K_7:
+                    character = chr(K_AMPERSAND)
+                elif key == K_8:
+                    character = chr(K_ASTERISK)
+                elif key == K_9:
+                    character = chr(K_LEFTPAREN)
+                elif key == K_0:
+                    character = chr(K_RIGHTPAREN)
+                elif key == K_SLASH:
+                    character = chr(K_QUESTION)
+                    
+                else:
+                    character = chr(key)
+                self.buffer += character
         else:
             print key
-        
+                
+                
     def findKey(self, key):
         for event in self.prevState:
             if event.key == key:
@@ -204,6 +245,8 @@ class GameState(State):
                 self.player1.credits += 1000
             elif raw == "day":
                 self.daily()
+            elif raw == "T":
+                print self.keysDown
         elif self.currentCommand == 0:
             if raw == "b":
                 self.currentCommand = 1
