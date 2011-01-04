@@ -55,6 +55,9 @@ class GameState(State):
 
         self.screen.blit(self.content["@"], (2*TILESIZE, 2*TILESIZE))
 
+        if self.currentCommand == 10:
+            text = self.content["font1"].render("\\", True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx-6, self.screen.get_rect().centery+150))
         
         
         text = self.content["font1"].render(self.buffer, True, WHITE)  
@@ -154,52 +157,52 @@ class GameState(State):
             self.view = self.findView(self.player1.posX, self.player1.posY)
 
     def letter(self, key):
-        #if its a alpha numeric character
-        shift = False
-        for i in xrange(len(self.keys)):
-            if self.keys[i][0] == K_LSHIFT or self.keys[i][0] == K_RSHIFT or self.keys[i][0] == K_CAPSLOCK:
-                shift = True
-                break
-                    
-        if (key > 31 and key < 47) or (key > 57 and key < 128) and len(self.buffer) < MAXTEXT:
-            if shift:        
-                self.buffer += chr(key).upper()
-            else:
-                self.buffer += chr(key)
-       
-        elif key > 46 and key < 58:
-            if not shift:
-                self.buffer += chr(key)
-            else:
-                if key == K_1:
-                    character = chr(K_EXCLAIM) 
-                elif key == K_2:
-                    character = chr(K_AT)
-                elif key == K_3:
-                    character = chr(K_HASH)
-                elif key == K_4:
-                    character = chr(K_DOLLAR)
-                elif key == K_5:
-                    character = chr(37)
-                elif key == K_6:
-                    character = chr(K_CARET)
-                elif key == K_7:
-                    character = chr(K_AMPERSAND)
-                elif key == K_8:
-                    character = chr(K_ASTERISK)
-                elif key == K_9:
-                    character = chr(K_LEFTPAREN)
-                elif key == K_0:
-                    character = chr(K_RIGHTPAREN)
-                elif key == K_SLASH:
-                    character = chr(K_QUESTION)
-                    
+        if self.currentCommand != -1:
+            shift = False
+            for i in xrange(len(self.keys)):
+                if self.keys[i][0] == K_LSHIFT or self.keys[i][0] == K_RSHIFT or self.keys[i][0] == K_CAPSLOCK:
+                    shift = True
+                    break
+            #if its a alpha numeric character    
+            if (key > 31 and key < 47) or (key > 60 and key < 128) and len(self.buffer) < MAXTEXT:
+                if shift:        
+                    self.buffer += chr(key).upper()
                 else:
-                    character = chr(key)
-                self.buffer += character
-        else:
-            print key
-                
+                    self.buffer += chr(key)
+           
+            elif key > 46 and key < 60:
+                if not shift:
+                    self.buffer += chr(key)
+                else:
+                    if key == K_1:
+                        character = chr(K_EXCLAIM) 
+                    elif key == K_2:
+                        character = chr(K_AT)
+                    elif key == K_3:
+                        character = chr(K_HASH)
+                    elif key == K_4:
+                        character = chr(K_DOLLAR)
+                    elif key == K_5:
+                        character = chr(37)
+                    elif key == K_6:
+                        character = chr(K_CARET)
+                    elif key == K_7:
+                        character = chr(K_AMPERSAND)
+                    elif key == K_8:
+                        character = chr(K_ASTERISK)
+                    elif key == K_9:
+                        character = chr(K_LEFTPAREN)
+                    elif key == K_0:
+                        character = chr(K_RIGHTPAREN)
+                    elif key == K_SLASH:
+                        character = chr(K_QUESTION)
+                    elif key == K_SEMICOLON:
+                        character = chr(K_COLON)
+                    else:
+                        character = chr(key)
+                    self.buffer += character
+            else:
+                print key
                 
     def findKey(self, key):
         for event in self.prevState:
@@ -212,6 +215,13 @@ class GameState(State):
         elif key == K_RIGHT: self.move("right")
         elif key == K_UP: self.move("up")
         elif key == K_DOWN: self.move("down")
+        elif key == K_g: self.cmd_g()
+        elif key == K_b: self.cmd_b()
+        elif key == K_s: self.cmd_s()
+        elif key == K_q: self.cmd_q()
+        elif key == K_f: self.cmd_f()
+        elif key == K_m: self.cmd_m()
+        elif key == K_e: self.cmd_e()
         elif key == K_KP0: self.letter(K_0)
         elif key == K_KP1: self.letter(K_1)
         elif key == K_KP2: self.letter(K_2)
@@ -227,74 +237,110 @@ class GameState(State):
         elif key == K_SPACE: self.letter(key)
         else: self.letter(key)
 
+    def cmd_g(self):
+        if self.currentCommand == -1:
+            if (self.player1.posX, self.player1.posY) in self.outposts:
+                self.outpost = self.outposts[(self.player1.posX, self.player1.posY)]
+                self.inTown = True
+                self.dispMessage("Welcome to the Outpost")
+                self.currentCommand = 0
+            else:
+                self.dispMessage("There is nothing here to enter.")
+        else:
+            self.letter(K_g)
+                    
+    def cmd_b(self): 
+        if self.currentCommand == 0:
+            self.currentCommand = 1
+            self.dispMessage("What would you like to buy?")
+        else:
+            self.letter(K_b)
+
+    def cmd_s(self): 
+        if self.currentCommand == 0:
+            self.currentCommand = 3
+            self.dispMessage("What would you like to sell?")
+        else:
+            self.letter(K_s)
+
+    def cmd_f(self): 
+        if self.currentCommand == 1:
+            price = self.outpost.food.getSellPrice()
+            amt = self.player1.findmaxBuy(price)
+            if amt > self.outpost.food.bleft():
+                amt = self.outpost.food.bleft()
+            self.dispMessage("How much food? " + str(amt) + " for " + str(amt * price))
+            self.currentCommand = 2
+            self.currentCommodity =  1
+        elif self.currentCommand == 3:
+            amt = self.player1.food
+            if self.outpost.food.current + amt > self.outpost.food.capacity:
+                amt = self.outpost.food.capacity
+            self.dispMessage("How much food? " + str(amt) + " for " + str(amt * self.outpost.food.getBuyPrice()))
+            self.currentCommand = 4
+            self.currentCommodity =  1           
+        else:
+            self.letter(K_f)
+
+    def cmd_m(self): 
+        if self.currentCommand == 1:
+            price = self.outpost.mineral.getSellPrice()
+            amt = self.player1.findmaxBuy(price)
+            if amt > self.outpost.mineral.bleft():
+                amt = self.outpost.mineral.bleft()
+            self.dispMessage("How many minerals? " + str(amt) + " for " + str(amt * price))
+            self.currentCommand = 2
+            self.currentCommodity =  2 
+        elif self.currentCommand == 3:
+            amt = self.player1.mineral
+            if self.outpost.mineral.current + amt > self.outpost.mineral.capacity:
+                amt = self.outpost.mineral.capacity
+            self.dispMessage("How many minerals? " + str(amt) +" for " + str(amt * self.outpost.mineral.getBuyPrice()))
+            self.currentCommand = 4
+            self.currentCommodity =  2                 
+        else:
+            self.letter(K_m)
+
+    def cmd_e(self): 
+        if self.currentCommand == 1:
+            price = self.outpost.equipment.getSellPrice()
+            amt = self.player1.findmaxBuy(price)
+            if amt > self.outpost.equipment.bleft():
+                amt = self.outpost.equipment.bleft()
+            self.dispMessage("How much equipment? " + str(amt) + " for " + str(amt * price))
+            self.currentCommand = 2
+            self.currentCommodity = 3
+        elif self.currentCommand == 3:
+            amt = self.player1.equipment
+            if self.outpost.equipment.current + amt > self.outpost.equipment.capacity:
+                amt = self.outpost.equipment.capacity
+            self.dispMessage("How much equipment? " + str(amt) +" for " + str(amt * self.outpost.equipment.getBuyPrice()))
+            self.currentCommand = 4
+            self.currentCommodity = 3
+        else:
+            self.letter(K_e)
+
+    def cmd_q(self): 
+        if self.currentCommand == 0:
+            self.dispMessage("Goodbye")
+            self.inTown = False
+            self.outpost = None
+            self.currentCommand = -1
+        elif self.currentCommand > 0 and self.currentCommand < 5:
+            self.dispMessage("Base Menu")
+            self.currentCommand = 0
+        else:
+            self.letter(K_q)     
+                   
     def enter(self):
         #self.console.execute(self.buffer)
         self.dispMessage(self.buffer)
         raw = self.buffer.strip()
-        
+
         if self.currentCommand == -1:
-            if raw == "g":
-                if (self.player1.posX, self.player1.posY) in self.outposts:
-                    self.outpost = self.outposts[(self.player1.posX, self.player1.posY)]
-                    self.inTown = True
-                    self.dispMessage("Welcome to the Outpost")
-                    self.currentCommand = 0
-                else:
-                    print "no"
-            elif raw == "cheat":
-                self.player1.credits += 1000
-            elif raw == "day":
-                self.daily()
-            elif raw == "T":
-                print self.keysDown
-        elif self.currentCommand == 0:
-            if raw == "b":
-                self.currentCommand = 1
-                self.dispMessage("What would you like to buy?")
-            elif raw == "s":
-                self.currentCommand = 3
-                self.dispMessage("What would you like to sell?")
-            elif raw == "q" or raw == "exit":
-                self.dispMessage("Goodbye")
-                self.inTown = False
-                self.outpost = None
-                self.currentCommand = -1
-                
-        elif self.currentCommand == 1:
-            if raw == "f":
-                price = self.outpost.food.getSellPrice()
-                amt = self.player1.findmaxBuy(price)
-                if amt > self.outpost.food.bleft():
-                    amt = self.outpost.food.bleft()
-                self.dispMessage("How much food? " + str(amt) + " for " + str(amt * price))
-                self.currentCommand = 2
-                self.currentCommodity =  1                  
-            elif raw ==  "m":
-                price = self.outpost.mineral.getSellPrice()
-                amt = self.player1.findmaxBuy(price)
-                if amt > self.outpost.mineral.bleft():
-                    amt = self.outpost.mineral.bleft()
-                self.dispMessage("How many minerals? " + str(amt) + " for " + str(amt * price))
-                self.currentCommand = 2
-                self.currentCommodity =  2             
-            elif raw == "e":
-                price = self.outpost.equipment.getSellPrice()
-                amt = self.player1.findmaxBuy(price)
-                if amt > self.outpost.equipment.bleft():
-                    amt = self.outpost.equipment.bleft()
-                self.dispMessage("How much equipment? " + str(amt) + " for " + str(amt * price))
-                self.currentCommand = 2
-                self.currentCommodity = 3
-            elif raw == "q" or raw == "exit":
-                self.dispMessage("Goodbye")
-                self.currentCommand = 0
-            else:
-                self.dispMessage("Invalid choice.")
+            self.currentCommand = 10
         elif self.currentCommand == 2:
-            if raw == "q" or raw == "exit":
-                self.dispMessage("Goodbye")
-                self.currentCommand = 0
-            elif raw == "a":
+            if raw == "a":
                 commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
                 price = commodity.getSellPrice()
                 amt = self.player1.findmaxBuy(price)
@@ -303,38 +349,8 @@ class GameState(State):
                 self.buy(COMMODITY[self.currentCommodity], str(amt))
             else:    
                 self.buy(COMMODITY[self.currentCommodity], raw)
-        elif self.currentCommand == 3:
-            if raw == "f":
-                amt = self.player1.food
-                if self.outpost.food.current + amt > self.outpost.food.capacity:
-                    amt = self.outpost.food.capacity
-                self.dispMessage("How much food? " + str(amt) + " for " + str(amt * self.outpost.food.getBuyPrice()))
-                self.currentCommand = 4
-                self.currentCommodity =  1                  
-            elif raw ==  "m":
-                amt = self.player1.mineral
-                if self.outpost.mineral.current + amt > self.outpost.mineral.capacity:
-                    amt = self.outpost.mineral.capacity
-                self.dispMessage("How many minerals? " + " for " + str(amt * self.outpost.mineral.getBuyPrice()))
-                self.currentCommand = 4
-                self.currentCommodity =  2             
-            elif raw == "e":
-                amt = self.player1.equipment
-                if self.outpost.equipment.current + amt > self.outpost.equipment.capacity:
-                    amt = self.outpost.equipment.capacity
-                self.dispMessage("How much equipment? " + " for " + str(amt * self.outpost.equipment.getBuyPrice()))
-                self.currentCommand = 4
-                self.currentCommodity = 3
-            elif raw == "q" or raw == "exit":
-                self.dispMessage("Goodbye")
-                self.currentCommand = 0
-            else:
-                self.dispMessage("Invalid choice.")
         elif self.currentCommand == 4:
-            if raw == "q" or raw == "exit":
-                self.dispMessage("Goodbye")
-                self.currentCommand = 0
-            elif raw == "a":
+            if raw == "a":
                 commodity = eval("self.outpost." + COMMODITY[self.currentCommodity])
                 amt = eval("self.player1." + COMMODITY[self.currentCommodity])
                 if commodity.current + amt > commodity.capacity:
@@ -342,6 +358,9 @@ class GameState(State):
                 self.sell(COMMODITY[self.currentCommodity], str(amt))
             else:
                 self.sell(COMMODITY[self.currentCommodity], raw)
+        elif self.currentCommand == 10:
+            if raw == "":
+                self.currentCommand = -1
             
         self.buffer = ""
 
