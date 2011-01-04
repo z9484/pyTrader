@@ -1,13 +1,11 @@
 import pygame, sys
 from pygame.locals import *
-
+from constants import *
 from character import *
+from states.loginstate import *
 from states.gamestate.gamestate import *
 from states.combatstate import *
 
-FRAMES_PER_SECOND = 30
-
-   
 class Game(object):
     def __init__(self):
         self.screen = pygame.display.set_mode((640, 480))
@@ -30,7 +28,8 @@ class Game(object):
         self.tiles["t"] = town
         self.tiles["font1"] = font
 
-        self.gamestate = [GameState(self.screen, self.tiles)]
+        #self.gamestate = [GameState(self.screen, self.tiles)]
+        self.gamestate = [LoginState(self.screen, self.tiles)]
         self.gamestate[0].insert(self)
         #self.gamestate = CombatState(self.screen, self.tiles)
 

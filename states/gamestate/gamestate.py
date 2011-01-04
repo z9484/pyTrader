@@ -1,26 +1,21 @@
 from character import *
+from constants import *
 from state import *
 from loadmap import *
 import pygame, sys
 from pygame.locals import *
-#from console import *
 from point import *
 from states.gamestate.outpost import *
 import cPickle as pickle
 
-BLACK = (0,0,0)
-WHITE = (255, 255, 255)
-GRAY = (169, 169, 169)
-TILESIZE = 32
-MAXTEXT = 30
 OBSTACLES = ["#"]
 COMMODITY = {0:"none", 1:"food", 2:"mineral", 3:"equipment"}
 
 class GameState(State):
-    def __init__(self, screen, content):
+    def __init__(self, screen, content, game):
         super(GameState, self).__init__(screen, content)
 
-        
+        self.game = game
         self.load()
         
         self.map = loadMap("maps/t1.map")

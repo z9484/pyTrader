@@ -1,8 +1,6 @@
 import pygame, sys
 from pygame.locals import *
-
-ICOOLTIME = 500
-COOLTIME = 100
+from constants import *
 
 class State(object):
     def __init__(self, screen, content):
