@@ -6,3 +6,6 @@ TILESIZE = 32
 MAXTEXT = 30
 ICOOLTIME = 500
 COOLTIME = 100
+
+HOST = 'localhost'                 
+PORT = 50007

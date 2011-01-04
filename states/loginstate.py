@@ -5,7 +5,7 @@ import pygame, sys
 from pygame.locals import *
 from states.gamestate.gamestate import *
 import cPickle as pickle
-
+import socket
 
 class LoginState(State):
     def __init__(self, screen, content):
@@ -14,6 +14,14 @@ class LoginState(State):
         self.current = 0
         self.playername = ""
         self.password = ""
+        self.error = False
+        
+        try:
+            self.channel = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+            self.channel.connect((HOST, PORT))
+        except:
+            print "Server is offline"
+            self.exit()      
         
     def insert(self, game):
         self.game = game
@@ -41,6 +49,10 @@ class LoginState(State):
             self.screen.blit(text, (self.screen.get_rect().centerx-36, self.screen.get_rect().centery-75))
         else:
             self.screen.blit(text, (self.screen.get_rect().centerx-36, self.screen.get_rect().centery-60))
+
+        if self.error:
+            text = self.content["font1"].render("Incorrect player name or password", True, WHITE)  
+            self.screen.blit(text, (self.screen.get_rect().centerx-30, self.screen.get_rect().centery+100))
         
         
     def update(self, clock):
@@ -135,8 +147,18 @@ class LoginState(State):
             self.password = self.password[:-1]
     
     def submit(self):
-        #client.send(pickle.dumps((self.playername,self.password)))
-        self.game.gamestate = [GameState(self.screen, self.content, self.game)]
+        self.channel.send(pickle.dumps((self.playername,self.password)))
+        packet = client.recv(25) #Authentication status
+        print packet
+        if packet == "1":
+            player = pickle.loads(client.recv(1024))
+            print player
+        else:
+            #Invalid Information
+            self.current = 0
+            self.error = True
+    
+        self.game.gamestate = [GameState(self.screen, self.content, self.game, self.channel)]
         
     def load(self):
         try:
