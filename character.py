@@ -1,4 +1,9 @@
-TILESIZE = 32
+class MiniChar(object):
+    def __init__(self, character):
+        self.name = character.name
+        self.posX = character.posX
+        self.posY = character.posY
+        
 class Character(object):
     def __init__(self, name):
         self.posX = 2
@@ -9,6 +14,7 @@ class Character(object):
         self.equipment = 0
         self.maxcargo = 25
         self.name = name
+        self.password = "tt"
 
 
     def moveLeft(self):

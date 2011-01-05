@@ -148,17 +148,17 @@ class LoginState(State):
     
     def submit(self):
         self.channel.send(pickle.dumps((self.playername,self.password)))
-        packet = client.recv(25) #Authentication status
+        packet = self.channel.recv(25) #Authentication status
         print packet
         if packet == "1":
-            player = pickle.loads(client.recv(1024))
+            player = pickle.loads(self.channel.recv(1024))
             print player
         else:
             #Invalid Information
             self.current = 0
             self.error = True
-    
-        self.game.gamestate = [GameState(self.screen, self.content, self.game, self.channel)]
+        # self.exit()
+        self.game.gamestate = [GameState(self.screen, self.content, self.game, self.channel, player)]
         
     def load(self):
         try:
@@ -303,5 +303,7 @@ class LoginState(State):
                  }
 
     def exit(self):
+        # self.channel.close()
         sys.exit(0)
+        
         

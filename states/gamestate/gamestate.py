@@ -12,10 +12,12 @@ OBSTACLES = ["#"]
 COMMODITY = {0:"none", 1:"food", 2:"mineral", 3:"equipment"}
 
 class GameState(State):
-    def __init__(self, screen, content, game):
+    def __init__(self, screen, content, game, channel, player):
         super(GameState, self).__init__(screen, content)
 
         self.game = game
+        self.channel = channel
+        self.player1 = player
         self.load()
         
         self.map = loadMap("maps/t1.map")
@@ -420,6 +422,27 @@ class GameState(State):
         self.history.pop(0)
 
     def load(self):
+        size = pickle.loads(self.channel.recv(128))
+        self.channel.send("1")
+        outposts = pickle.loads(self.channel.recv(size))
+        # print outposts
+        self.outposts = {}
+        types = {1: "Farm", 2: "Mine", 3: "Factory", 4:"City"}
+        frate = {1: 0.9, 2: 1.05, 3: 1.05, 4: 1.15}
+        mrate = {1: 1, 2: 0.9, 3: 1.15, 4: 1.1}
+        erate = {1: 1.1, 2: 1.15, 3: 0.9, 4: 1.1}
+        
+        for row in outposts:
+            # print row
+            self.outposts[(row[1], row[2])] = Outpost(row[0], Point(row[1], row[2]), types[row[3]],
+            Commodity("Food", frate[row[3]], row[4], row[5], 1),
+            Commodity("Mineral", mrate[row[3]], row[6], row[7], 1),
+            Commodity("Equipment", erate[row[3]], row[8], row[9], 1)
+            )
+        
+        # print self.outposts
+        
+        '''
         try:
             with open("player.dat", 'r') as file: 
                 storage = pickle.load(file)
@@ -560,7 +583,7 @@ class GameState(State):
                  Commodity("Equipment", 1.15, 4500, 2250,  1)
                  )				 
                  }
-            
+            '''
     def daily(self):
         for key in self.outposts:
             self.outposts[key].dailyAdj()
@@ -568,6 +591,7 @@ class GameState(State):
         
         
     def exit(self):
+        '''
         storage = self.player1
         with open("player.dat", 'w') as file: 
             pickle.dump(storage, file)
@@ -575,8 +599,8 @@ class GameState(State):
         storage = self.outposts
         with open("outposts.dat", 'w') as file: 
             pickle.dump(storage, file)
-            
-            
+        '''    
+        self.channel.close()
         sys.exit(0)
         
         
