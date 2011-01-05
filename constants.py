@@ -9,3 +9,4 @@ COOLTIME = 100
 
 HOST = 'localhost'                 
 PORT = 50007
+UPDATECOOL = 1000

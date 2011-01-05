@@ -7,6 +7,7 @@ from pygame.locals import *
 from point import *
 from states.gamestate.outpost import *
 import cPickle as pickle
+from timer import *
 
 OBSTACLES = ["#"]
 COMMODITY = {0:"none", 1:"food", 2:"mineral", 3:"equipment"}
@@ -29,7 +30,7 @@ class GameState(State):
         self.currentCommand = -1
         self.currentCommodity = 0
         self.inTown = False
-        
+        self.updateTimer = Timer(UPDATECOOL)
         #print pygame.game.gamestate
         
         #self.console = Console()
@@ -121,6 +122,10 @@ class GameState(State):
         for i in xrange(len(self.keys)):
             if self.check_cool(i):
                 self.keyHandler(self.keys[i][0])
+                
+        if self.updateTimer.check(self.dt):
+            self.sendUpdate()
+        
             
     def player_left(self):
         if self.view[2][1] not in OBSTACLES:
@@ -376,6 +381,8 @@ class GameState(State):
             exec("self.player1." + commodity + " += amt")
             self.dispMessage("Bought " + raw + " " + commodity + "@ " + str(price))
             self.currentCommand = 0
+            # self.sendbuy()
+            self.channel.send(pickle.dumps( (("b", self.outpost.no, commodity, raw, price), ) ) )
         except:
             self.dispMessage("Invalid amount")
 
@@ -589,6 +596,8 @@ class GameState(State):
             self.outposts[key].dailyAdj()
         self.dispMessage("A new day has dawned")
         
+    def sendUpdate(self):
+        self.channel.send(pickle.dumps( (("m", self.player1.posX, self.player1.posY), ) ) )
         
     def exit(self):
         '''
