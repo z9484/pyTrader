@@ -75,7 +75,11 @@ class Outpost(object):
             commodity.current = 0
         elif commodity.current > commodity.capacity:
             commodity.current = commodity.capacity
-    
+            
+    def update(self, amts):
+        self.food.current = amts[0]
+        self.mineral.current = amts[1]
+        self.equipment.current = amts[2]
             
     # def calc(self, label, multiplier):
         # exec("amt = int(" + label + ".current + " + label + ".capacity * multiplier)")

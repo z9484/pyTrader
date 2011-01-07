@@ -5,7 +5,7 @@ class MiniChar(object):
         self.posY = character.posY
         
 class Character(object):
-    def __init__(self, name):
+    def __init__(self, name, paswd):
         self.posX = 2
         self.posY = 2
         self.credits = 100
@@ -14,8 +14,7 @@ class Character(object):
         self.equipment = 0
         self.maxcargo = 25
         self.name = name
-        self.password = "tt"
-
+        self.password = paswd
 
     def moveLeft(self):
 	    self.posX -= 1

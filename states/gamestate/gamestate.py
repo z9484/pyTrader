@@ -124,7 +124,13 @@ class GameState(State):
                 self.keyHandler(self.keys[i][0])
                 
         if self.updateTimer.check(self.dt):
-            self.sendUpdate()
+            if not self.inTown:
+                self.sendUpdate()
+            else:
+                if self.currentCommand != 2 and self.currentCommand != 4:
+                    self.bUpdate()
+                pass
+                
         
             
     def player_left(self):
@@ -382,7 +388,7 @@ class GameState(State):
             self.dispMessage("Bought " + raw + " " + commodity + "@ " + str(price))
             self.currentCommand = 0
             # self.sendbuy()
-            self.channel.send(pickle.dumps( (("b", self.outpost.no, commodity, raw, price), ) ) )
+            self.channel.send(pickle.dumps( (("b", self.outpost.no, commodity, amt, price), ) ) )
         except:
             self.dispMessage("Invalid amount")
 
@@ -401,6 +407,7 @@ class GameState(State):
             exec("self.player1." + commodity + " -= amt")
             self.dispMessage("Sold " + raw + " " + commodity + "@ " + str(price))
             self.currentCommand = 0
+            self.channel.send(pickle.dumps( (("s", self.outpost.no, commodity, amt, price), ) ) )
         except:
             self.dispMessage("Invalid amount")
             
@@ -598,6 +605,10 @@ class GameState(State):
         
     def sendUpdate(self):
         self.channel.send(pickle.dumps( (("m", self.player1.posX, self.player1.posY), ) ) )
+    
+    def bUpdate(self):
+        self.channel.send(pickle.dumps( (("o", [self.outpost.no]), ) ) )
+        self.outpost.update(pickle.loads(self.channel.recv(1024)))
         
     def exit(self):
         '''
@@ -608,7 +619,8 @@ class GameState(State):
         storage = self.outposts
         with open("outposts.dat", 'w') as file: 
             pickle.dump(storage, file)
-        '''    
+        '''
+        self.sendUpdate()        
         self.channel.close()
         sys.exit(0)
         

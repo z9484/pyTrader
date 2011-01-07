@@ -16,7 +16,7 @@ class State(object):
         self.dt = clock.get_time()
         
         for event in pygame.event.get():
-            if event.type == QUIT: sys.exit(0)    
+            # if event.type == QUIT: sys.exit(0)    
             if hasattr(event, 'key'):
                 # if event.type == KEYDOWN: self.keysDown.append(event.key); self.keys.append([event.key, ICOOLTIME])
                 # elif event.type == KEYUP: self.keysUp.append(event.key); self.keyreleased(event.key)
