@@ -620,7 +620,8 @@ class GameState(State):
         with open("outposts.dat", 'w') as file: 
             pickle.dump(storage, file)
         '''
-        self.sendUpdate()        
+        
+        self.channel.send(pickle.dumps( (("sv", [self.player1]), ) ) )        
         self.channel.close()
         sys.exit(0)
         
